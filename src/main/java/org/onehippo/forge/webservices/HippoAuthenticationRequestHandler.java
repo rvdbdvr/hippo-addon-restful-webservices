@@ -48,6 +48,7 @@ public class HippoAuthenticationRequestHandler implements RequestHandler,Respons
             String password = policy.getPassword();
             try {
                 session = JcrSessionUtil.createSession(username, password);
+                log.info("Login JCR Session: {}, message = {}", session.toString(), m.getId());
                 if (isAuthenticated(session)) {
                     HttpServletRequest request = (HttpServletRequest) m.get(AbstractHTTPDestination.HTTP_REQUEST);
                     request.setAttribute(AuthenticationConstants.HIPPO_SESSION, session);
@@ -66,6 +67,7 @@ public class HippoAuthenticationRequestHandler implements RequestHandler,Respons
     @Override
     public Response handleResponse(final Message m, final OperationResourceInfo ori, final Response response) {
         if(session!=null && session.isLive()) {
+            log.info("Logout JCR Session: {}: message = {}", session.toString(), m.getId());
             session.logout();
             session = null;
         }
