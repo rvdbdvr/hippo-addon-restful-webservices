@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * Helper class for mapping to and from JCR.
  *
  */
-public final class JcrDataBindingHelper {
+public class JcrDataBindingHelper {
 
     private static final Logger log = LoggerFactory.getLogger(JcrDataBindingHelper.class);
 
@@ -76,7 +76,10 @@ public final class JcrDataBindingHelper {
         JcrNode jcrNode = new JcrNode();
         try {
             jcrNode.setName(node.getName());
-            jcrNode.setIdentifier(node.getIdentifier());
+            //jcrNode.setIdentifier(node.getIdentifier());
+            if (node.isNodeType( "mix:referenceable" )) {
+            	jcrNode.setIdentifier(node.getUUID());
+            }
             jcrNode.setPath(node.getPath());
             jcrNode.setPrimaryType(node.getPrimaryNodeType().getName());
 
@@ -119,10 +122,12 @@ public final class JcrDataBindingHelper {
         JcrProperty data = new JcrProperty();
         data.setName(property.getName());
         data.setType(PropertyType.nameFromValue(property.getType()));
-        data.setMultiple(property.isMultiple());
+        //data.setMultiple(property.isMultiple());
+        data.setMultiple(property.getDefinition().isMultiple());
 
         List<String> values = new ArrayList<String>();
-        if (property.isMultiple()) {
+        //if (property.isMultiple()) {
+        if (property.getDefinition().isMultiple()) {
             for (Value propertyValue : property.getValues()) {
                 values.add(getPropertyValueAsString(propertyValue));
             }
@@ -228,7 +233,7 @@ public final class JcrDataBindingHelper {
             String propName = property.getName();
             if (node.hasProperty(propName)) {
                 Property existingProperty = node.getProperty(propName);
-                if (!existingProperty.isMultiple()) {
+                if (!existingProperty.getDefinition().isMultiple()) {
                     existingProperty.remove();
                 }
             }
@@ -247,7 +252,7 @@ public final class JcrDataBindingHelper {
             String name = property.getName();
             if (node.hasProperty(name)) {
                 Property existingProperty = node.getProperty(name);
-                if (existingProperty.isMultiple()) {
+                if (existingProperty.getDefinition().isMultiple()) {
                     existingProperty.remove();
                 }
             }
