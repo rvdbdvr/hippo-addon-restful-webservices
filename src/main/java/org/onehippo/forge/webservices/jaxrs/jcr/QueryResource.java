@@ -19,6 +19,8 @@ package org.onehippo.forge.webservices.jaxrs.jcr;
 import java.net.URI;
 import java.util.ArrayList;
 
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
@@ -49,8 +51,8 @@ import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 
 import org.apache.cxf.rs.security.cors.CrossOriginResourceSharing;
-import org.hippoecm.repository.api.HippoNodeIterator;
-import org.hippoecm.repository.util.RepoUtils;
+//import org.hippoecm.repository.api.HippoNodeIterator;
+//import org.hippoecm.repository.util.RepoUtils;
 import org.onehippo.forge.webservices.jaxrs.jcr.model.JcrNode;
 import org.onehippo.forge.webservices.jaxrs.jcr.model.JcrQueryResult;
 import org.onehippo.forge.webservices.jaxrs.jcr.model.JcrQueryResultNode;
@@ -97,29 +99,30 @@ public class QueryResource {
             Session session = JcrSessionUtil.getSessionFromRequest(request);
             final QueryManager queryManager = session.getWorkspace().getQueryManager();
             Query jcrQuery;
-            if (Query.XPATH.equals(language)) {
-                jcrQuery = queryManager.createQuery(RepoUtils.encodeXpath(statement), language);
-            } else {
+//            if (Query.XPATH.equals(language)) {
+//                jcrQuery = queryManager.createQuery(RepoUtils.encodeXpath(statement), language);
+//            } else {
                 jcrQuery = queryManager.createQuery(statement, language);
-            }
+//            }
 
             if (limit > 0) {
-                jcrQuery.setLimit(limit);
+//                jcrQuery.setLimit(limit);
             }
             if (offset > 0) {
-                jcrQuery.setOffset(offset);
+//                jcrQuery.setOffset(offset);
             }
             final long start = System.currentTimeMillis();
             QueryResult queryResult = jcrQuery.execute();
             jcrQueryResult.setTook(System.currentTimeMillis() - start);
             final RowIterator rowIterator = queryResult.getRows();
-            HippoNodeIterator nodeIterator = (HippoNodeIterator) queryResult.getNodes();
-            long totalSize = nodeIterator.getTotalSize();
+            NodeIterator nodeIterator = queryResult.getNodes();
+            long totalSize = nodeIterator.getSize();
             jcrQueryResult.setHits(totalSize);
 
             while (rowIterator.hasNext()) {
                 Row row = rowIterator.nextRow();
-                final JcrNode nodeRepresentation = JcrDataBindingHelper.getNodeRepresentation(row.getNode(), 0);
+                Node node = nodeIterator.nextNode();
+                final JcrNode nodeRepresentation = JcrDataBindingHelper.getNodeRepresentation(node, 0);
                 final URI nodeUri = getUriForNode(ui, nodeRepresentation);
 
                 final JcrQueryResultNode queryResultNode = new JcrQueryResultNode();
@@ -130,7 +133,7 @@ public class QueryResource {
                     }
                 }
                 queryResultNode.setLink(nodeUri);
-                queryResultNode.setScore(row.getScore());
+                //queryResultNode.setScore(row.getScore());
                 resultItems.add(queryResultNode);
             }
         } catch (RepositoryException e) {
@@ -161,28 +164,30 @@ public class QueryResource {
             Session session = JcrSessionUtil.getSessionFromRequest(request);
             final QueryManager queryManager = session.getWorkspace().getQueryManager();
             Query query;
-            if (Query.XPATH.equals(searchQuery.getLanguage())) {
-                query = queryManager.createQuery(RepoUtils.encodeXpath(searchQuery.getStatement()), searchQuery.getLanguage());
-            } else {
+//            if (Query.XPATH.equals(searchQuery.getLanguage())) {
+//                query = queryManager.createQuery(RepoUtils.encodeXpath(searchQuery.getStatement()), searchQuery.getLanguage());
+//            } else {
                 query = queryManager.createQuery(searchQuery.getStatement(), searchQuery.getLanguage());
-            }
+//            }
 
             if (searchQuery.getLimit() > 0) {
-                query.setLimit(searchQuery.getLimit());
+//                query.setLimit(searchQuery.getLimit());
             }
             if (searchQuery.getOffset() > 0) {
-                query.setOffset(searchQuery.getOffset());
+//                query.setOffset(searchQuery.getOffset());
             }
             final long start = System.currentTimeMillis();
             javax.jcr.query.QueryResult queryResult = query.execute();
             jcrQueryResult.setTook(System.currentTimeMillis() - start);
             final RowIterator rowIterator = queryResult.getRows();
+            NodeIterator nodeIterator = (NodeIterator) queryResult.getNodes();
             long totalSize = rowIterator.getSize();
             jcrQueryResult.setHits(totalSize);
 
             while (rowIterator.hasNext()) {
                 Row row = rowIterator.nextRow();
-                final JcrNode nodeRepresentation = JcrDataBindingHelper.getNodeRepresentation(row.getNode(), 0);
+                Node node = nodeIterator.nextNode();
+                final JcrNode nodeRepresentation = JcrDataBindingHelper.getNodeRepresentation(node, 0);
                 final URI nodeUri = getUriForNode(ui, nodeRepresentation);
 
                 final JcrQueryResultNode queryResultNode = new JcrQueryResultNode();
@@ -193,7 +198,7 @@ public class QueryResource {
                     }
                 }
                 queryResultNode.setLink(nodeUri);
-                queryResultNode.setScore(row.getScore());
+                //queryResultNode.setScore(row.getScore());
                 resultItems.add(queryResultNode);
             }
         } catch (RepositoryException e) {

@@ -86,13 +86,13 @@ public class UsersResource {
     public static final String PROP_FIRSTNAME = "hipposys:firstname";
     public static final String PROP_LASTNAME = "hipposys:lastname";
     public static final String PROP_EMAIL = "hipposys:email";
-    public static final String PROP_SYSTEM = HippoNodeType.HIPPO_SYSTEM;
+//    public static final String PROP_SYSTEM = HippoNodeType.HIPPO_SYSTEM;
 
     public static final String PROP_PASSWORD = HippoNodeType.HIPPO_PASSWORD;
     public static final String PROP_PASSKEY = HippoNodeType.HIPPO_PASSKEY;
     public static final String PROP_PROVIDER = HippoNodeType.HIPPO_SECURITYPROVIDER;
-    public static final String PROP_PREVIOUSPASSWORDS = HippoNodeType.HIPPO_PREVIOUSPASSWORDS;
-    public static final String PROP_PASSWORDLASTMODIFIED = HippoNodeType.HIPPO_PASSWORDLASTMODIFIED;
+//    public static final String PROP_PREVIOUSPASSWORDS = HippoNodeType.HIPPO_PREVIOUSPASSWORDS;
+//    public static final String PROP_PASSWORDLASTMODIFIED = HippoNodeType.HIPPO_PASSWORDLASTMODIFIED;
 
     private final static String PROP_DESCRIPTION = "hipposys:description";
 
@@ -123,8 +123,8 @@ public class UsersResource {
         try {
             List<User> userList = new ArrayList<User>();
             final Query query = getQueryManager().createQuery(QUERY_USERS, Query.SQL);
-            query.setLimit(limit);
-            query.setOffset(offset);
+ //           query.setLimit(limit);
+ //           query.setOffset(offset);
             final QueryResult result = query.execute();
             final NodeIterator nodes = result.getNodes();
             while (nodes.hasNext()) {
@@ -362,7 +362,7 @@ public class UsersResource {
 
     private Node getUserNodeByName(final String username) throws RepositoryException {
         Node userNode = null;
-        final String queryString = QUERY_USER.replace("{}", Text.escapeIllegalJcr10Chars(ISO9075.encode(NodeNameCodec.encode(username))));
+        final String queryString = QUERY_USER.replace("{}", Text.escapeIllegalJcrChars(ISO9075.encode(NodeNameCodec.encode(username))));
         final Query query = getQueryManager().createQuery(queryString, Query.SQL);
         final NodeIterator nodes = query.execute().getNodes();
         if (nodes.hasNext()) {
@@ -385,7 +385,7 @@ public class UsersResource {
     private void updateUserNodeFromModel(final Node userNode, final User user) throws RepositoryException {
 
         userNode.setProperty(HippoNodeType.HIPPO_ACTIVE,user.isActive());
-        userNode.setProperty(PROP_SYSTEM,user.isSystem());
+//        userNode.setProperty(PROP_SYSTEM,user.isSystem());
 
         if(user.getEmail()!=null) {
             userNode.setProperty(PROP_EMAIL,user.getEmail());
@@ -414,20 +414,20 @@ public class UsersResource {
         if (node.hasProperty(HippoNodeType.HIPPO_PASSWORD)) {
             String oldPassword = node.getProperty(HippoNodeType.HIPPO_PASSWORD).getString();
             Value[] newValues;
-            if (node.hasProperty(HippoNodeType.HIPPO_PREVIOUSPASSWORDS)) {
-                Value[] oldValues = node.getProperty(HippoNodeType.HIPPO_PREVIOUSPASSWORDS).getValues();
-                newValues = new Value[oldValues.length + 1];
-                System.arraycopy(oldValues, 0, newValues, 1, oldValues.length);
-            } else {
+//            if (node.hasProperty(HippoNodeType.HIPPO_PREVIOUSPASSWORDS)) {
+//               Value[] oldValues = node.getProperty(HippoNodeType.HIPPO_PREVIOUSPASSWORDS).getValues();
+//                newValues = new Value[oldValues.length + 1];
+//                System.arraycopy(oldValues, 0, newValues, 1, oldValues.length);
+//            } else {
                 newValues = new Value[1];
-            }
+//            }
             newValues[0] = node.getSession().getValueFactory().createValue(oldPassword);
-            node.setProperty(HippoNodeType.HIPPO_PREVIOUSPASSWORDS, newValues);
+//            node.setProperty(HippoNodeType.HIPPO_PREVIOUSPASSWORDS, newValues);
         }
 
         // set password last changed date
         Calendar now = Calendar.getInstance();
-        node.setProperty(HippoNodeType.HIPPO_PASSWORDLASTMODIFIED, now);
+//        node.setProperty(HippoNodeType.HIPPO_PASSWORDLASTMODIFIED, now);
 
         // set new password
         node.setProperty(HippoNodeType.HIPPO_PASSWORD, createPasswordHash(password));
@@ -456,15 +456,15 @@ public class UsersResource {
                 user.setLastName(p.getString());
             } else if (name.equals(HippoNodeType.HIPPO_ACTIVE)) {
                 user.setActive(p.getBoolean());
-            } else if (name.equals(PROP_PASSWORD) || name.equals(PROP_PASSKEY) || name.equals(PROP_PREVIOUSPASSWORDS)) {
+//            } else if (name.equals(PROP_PASSWORD) || name.equals(PROP_PASSKEY) || name.equals(PROP_PREVIOUSPASSWORDS)) {
                 // do not expose password hash
-                continue;
+//                continue;
             } else if (name.equals(PROP_PROVIDER)) {
                 continue;
-            } else if (name.equals(PROP_PASSWORDLASTMODIFIED)) {
-                user.setPasswordLastModified(p.getDate());
-            } else if (name.equals(PROP_SYSTEM)) {
-                user.setSystem(p.getBoolean());
+//            } else if (name.equals(PROP_PASSWORDLASTMODIFIED)) {
+//                user.setPasswordLastModified(p.getDate());
+//            } else if (name.equals(PROP_SYSTEM)) {
+//               user.setSystem(p.getBoolean());
             }
         }
         return user;
@@ -489,7 +489,7 @@ public class UsersResource {
         setOrRemoveStringProperty(node, PROP_LASTNAME, user.getLastName());
 
         Calendar now = Calendar.getInstance();
-        node.setProperty(HippoNodeType.HIPPO_PASSWORDLASTMODIFIED, now);
+//        node.setProperty(HippoNodeType.HIPPO_PASSWORDLASTMODIFIED, now);
         node.setProperty(HippoNodeType.HIPPO_PASSWORD, createPasswordHash(user.getPassword()));
 
         return node;
@@ -534,7 +534,7 @@ public class UsersResource {
      * @return true if the user exists, false otherwise
      */
     public boolean userExists(final String username) {
-        final String queryString = QUERY_USER.replace("{}", Text.escapeIllegalJcr10Chars(ISO9075.encode(NodeNameCodec.encode(username))));
+        final String queryString = QUERY_USER.replace("{}", Text.escapeIllegalJcrChars(ISO9075.encode(NodeNameCodec.encode(username))));
         try {
             final Query query = getQueryManager().createQuery(queryString, Query.SQL);
             return query.execute().getNodes().hasNext();

@@ -99,10 +99,10 @@ public class PropertiesResource {
                 absolutePath = "/" + absolutePath;
             }
 
-            if (!session.propertyExists(absolutePath)) {
+            if (!JcrSessionUtil.propertyExists(session, absolutePath)) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            final Property property = session.getProperty(absolutePath);
+            final Property property = JcrSessionUtil.getProperty(session, absolutePath);
             jcrProperty = JcrDataBindingHelper.getPropertyRepresentation(property);
         } catch (RepositoryException e) {
             log.error("Error: {}", e);
@@ -138,7 +138,7 @@ public class PropertiesResource {
                 absolutePath = "/" + absolutePath;
             }
 
-            if (!session.nodeExists(absolutePath)) {
+            if (!JcrSessionUtil.nodeExists(session, absolutePath)) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
             if (StringUtils.isEmpty(jcrProperty.getName())) {
@@ -149,7 +149,7 @@ public class PropertiesResource {
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
 
-            final Node parentNode = session.getNode(absolutePath);
+            final Node parentNode = JcrSessionUtil.getNode(session, absolutePath);
             JcrDataBindingHelper.addPropertyToNode(parentNode, jcrProperty);
             session.save();
             UriBuilder ub = ui.getBaseUriBuilder().path(this.getClass()).path(this.getClass(), "getPropertyByPath");
@@ -187,7 +187,7 @@ public class PropertiesResource {
                 absolutePath = "/" + absolutePath;
             }
 
-            if (!session.propertyExists(absolutePath)) {
+            if (!JcrSessionUtil.propertyExists(session, absolutePath)) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
             if (StringUtils.isEmpty(jcrProperty.getName())) {
@@ -198,7 +198,7 @@ public class PropertiesResource {
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
 
-            final Property property = session.getProperty(absolutePath);
+            final Property property = JcrSessionUtil.getProperty(session, absolutePath);
             final Node node = property.getParent();
             JcrDataBindingHelper.addPropertyToNode(node,jcrProperty);
             session.save();
@@ -238,11 +238,11 @@ public class PropertiesResource {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-            if (!session.propertyExists(absolutePath)) {
+            if (!JcrSessionUtil.propertyExists(session, absolutePath)) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-            final Property property = session.getProperty(absolutePath);
+            final Property property = JcrSessionUtil.getProperty(session, absolutePath);
             property.remove();
             session.save();
         } catch (Exception e) {

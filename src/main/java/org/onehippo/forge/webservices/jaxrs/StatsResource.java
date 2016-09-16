@@ -32,16 +32,16 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 
 import org.apache.cxf.rs.security.cors.CrossOriginResourceSharing;
-import org.apache.jackrabbit.api.stats.QueryStat;
-import org.apache.jackrabbit.api.stats.QueryStatDto;
-import org.apache.jackrabbit.api.stats.RepositoryStatistics;
-import org.apache.jackrabbit.api.stats.TimeSeries;
-import org.apache.jackrabbit.core.RepositoryContext;
-import org.apache.jackrabbit.core.RepositoryImpl;
-import org.apache.jackrabbit.core.stats.QueryStatCore;
-import org.apache.jackrabbit.core.stats.RepositoryStatisticsImpl;
-import org.hippoecm.repository.impl.RepositoryDecorator;
-import org.onehippo.forge.webservices.jaxrs.jcr.util.JcrSessionUtil;
+//import org.apache.jackrabbit.api.stats.QueryStat;
+//import org.apache.jackrabbit.api.stats.QueryStatDto;
+//import org.apache.jackrabbit.api.stats.RepositoryStatistics;
+//import org.apache.jackrabbit.api.stats.TimeSeries;
+//import org.apache.jackrabbit.core.RepositoryContext;
+//import org.apache.jackrabbit.core.RepositoryImpl;
+//import org.apache.jackrabbit.core.stats.QueryStatCore;
+//import org.apache.jackrabbit.core.stats.RepositoryStatisticsImpl;
+//import org.hippoecm.repository.impl.RepositoryDecorator;
+//import org.onehippo.forge.webservices.jaxrs.jcr.util.JcrSessionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,10 +58,11 @@ public class StatsResource {
     @Context
     private HttpServletRequest request;
 
-    private RepositoryStatisticsImpl statistics;
+//    private RepositoryStatisticsImpl statistics;
 
     private static final Logger log = LoggerFactory.getLogger(StatsResource.class);
 
+    /*
     @ApiOperation(
             value = "Display all statistics about the repository instance; nr of sessions, queries, bundle operations",
             notes = "",
@@ -163,5 +164,7 @@ public class StatsResource {
         }
         return (RepositoryContext) contextField.get(RepositoryDecorator.unwrap(session.getRepository()));
     }
+    
+    */
 
 }

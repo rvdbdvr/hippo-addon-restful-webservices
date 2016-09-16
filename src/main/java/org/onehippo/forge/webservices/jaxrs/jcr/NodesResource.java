@@ -18,6 +18,7 @@ package org.onehippo.forge.webservices.jaxrs.jcr;
 
 import java.net.URI;
 
+import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -76,7 +77,7 @@ public class NodesResource {
     @Path("{path:.*}")
     @Produces({MediaType.APPLICATION_JSON})
     @ApiOperation(value = "Get a node",
-            notes = "Returns a node from the specified path",
+            notes = "Returns a node by UUID or from the specified path",
             position = 1,
             response = JcrNode.class)
 
@@ -86,31 +87,64 @@ public class NodesResource {
             @ApiResponse(code = 404, message = ResponseConstants.STATUS_MESSAGE_NODE_NOT_FOUND),
             @ApiResponse(code = 500, message = ResponseConstants.STATUS_MESSAGE_ERROR_OCCURRED)
     })
-    public Response getNodeByPath(@ApiParam(value = "Path of the node to retrieve", required = true) @PathParam("path") @DefaultValue("/") String path,
-                                  @ApiParam(value = "Depth of the retrieval", required = false) @QueryParam("depth") @DefaultValue("0") int depth,
-                                  @Context UriInfo ui) throws RepositoryException {
-
+    public Response getNodeByPath(
+    		@ApiParam(value = "Path of the node to retrieve", required = true) @PathParam("path") @DefaultValue("/") String path,
+            @ApiParam(value = "UUID of node to retrieve (overrides path)", required = false) @QueryParam("uuid") @DefaultValue("") String uuid,
+    		@ApiParam(value = "Depth of the retrieval", required = false) @QueryParam("depth") @DefaultValue("0") int depth,
+            @Context UriInfo ui) 
+            
+            		throws WebApplicationException {
 
         JcrNode jcrNode = null;
         try {
+        	Node node;
+        	
             Session session = JcrSessionUtil.getSessionFromRequest(request);
-            String absolutePath = StringUtils.defaultIfEmpty(path, "/");
-            if (!absolutePath.startsWith("/")) {
-                absolutePath = "/" + absolutePath;
-            }
-
-            if (!session.nodeExists(absolutePath)) {
-                return Response.status(Response.Status.NOT_FOUND).build();
-            }
-            final Node node = session.getNode(absolutePath);
-            jcrNode = JcrDataBindingHelper.getNodeRepresentation(node, depth);
-
-
-        } catch (RepositoryException e) {
+            
+        	if (StringUtils.isNotBlank(uuid)) {
+        		node = getNodeByUUID( session, uuid );
+        	}
+        	else {
+        		node = getNodeByPath( session, path );
+        	}
+        	if (node != null) {
+                jcrNode = JcrDataBindingHelper.getNodeRepresentation(node, depth);
+        	}
+        	else {
+                log.error("Getting node "+
+                		(StringUtils.isNotBlank(uuid) ? " with UUID "+uuid : " at "+path)+
+                		"returned NULL"
+                	);
+                throw new WebApplicationException();        		
+        	}
+        }
+        catch (ItemNotFoundException e) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        } 
+        catch (RepositoryException e) {
             log.error("Error: {}", e);
             throw new WebApplicationException(e);
         }
         return Response.ok(jcrNode).build();
+    }
+    
+    public Node getNodeByPath( Session session, String path ) 
+    		throws ItemNotFoundException, RepositoryException {
+    	
+        String absolutePath = StringUtils.defaultIfEmpty(path, "/");
+        if (!absolutePath.startsWith("/")) {
+            absolutePath = "/" + absolutePath;
+        }
+        if (!JcrSessionUtil.nodeExists(session, absolutePath)) {
+            throw new ItemNotFoundException("No node found on path "+absolutePath);
+        }
+        return  JcrSessionUtil.getNode(session, absolutePath);
+    }
+        
+    public Node getNodeByUUID( Session session, String uuid ) 
+    		throws ItemNotFoundException, RepositoryException {
+
+        return  session.getNodeByUUID(uuid);
     }
 
     /**
@@ -144,7 +178,7 @@ public class NodesResource {
                 absolutePath = "/" + absolutePath;
             }
 
-            if (!session.nodeExists(absolutePath)) {
+            if (!JcrSessionUtil.nodeExists(session, absolutePath)) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
             if (StringUtils.isEmpty(jcrNode.getName())) {
@@ -155,7 +189,7 @@ public class NodesResource {
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
 
-            final Node parentNode = session.getNode(absolutePath);
+            final Node parentNode = JcrSessionUtil.getNode(session, absolutePath);
             final Node node = parentNode.addNode(jcrNode.getName(), jcrNode.getPrimaryType());
             JcrDataBindingHelper.addMixinsFromRepresentation(node, jcrNode.getMixinTypes());
             JcrDataBindingHelper.addPropertiesFromRepresentation(node, jcrNode.getProperties());
@@ -210,11 +244,11 @@ public class NodesResource {
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
 
-            if (!session.nodeExists(absolutePath)) {
+            if (!JcrSessionUtil.nodeExists(session, absolutePath)) {
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
 
-            final Node nodeToUpdate = session.getNode(absolutePath);
+            final Node nodeToUpdate = JcrSessionUtil.getNode(session, absolutePath);
             final Node parentNode = nodeToUpdate.getParent();
             nodeToUpdate.remove();
 
@@ -253,11 +287,11 @@ public class NodesResource {
                 absolutePath = "/" + absolutePath;
             }
 
-            if (!session.nodeExists(absolutePath)) {
+            if (!JcrSessionUtil.nodeExists(session, absolutePath)) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-            final Node node = session.getNode(absolutePath);
+            final Node node = JcrSessionUtil.getNode(session, absolutePath);
             node.remove();
             session.save();
         } catch (Exception e) {

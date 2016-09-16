@@ -97,8 +97,8 @@ public class GroupsResource {
         try {
             List<Group> groupList = new ArrayList<Group>();
             final Query query = getQueryManager().createQuery(QUERY_ALL, Query.SQL);
-            query.setLimit(limit);
-            query.setOffset(offset);
+//            query.setLimit(limit);
+//            query.setOffset(offset);
             final QueryResult result = query.execute();
             final NodeIterator nodes = result.getNodes();
             while (nodes.hasNext()) {
@@ -276,7 +276,7 @@ public class GroupsResource {
      * @return the Node with name groupName
      */
     public Node getGroupNodeByName(final String groupName) {
-        final String escapedGroupName = Text.escapeIllegalJcr10Chars(ISO9075.encode(NodeNameCodec.encode(groupName, true)));
+        final String escapedGroupName = Text.escapeIllegalJcrChars(ISO9075.encode(NodeNameCodec.encode(groupName, true)));
         final String queryString = QUERY_GROUP.replace("{}", escapedGroupName);
         try {
             @SuppressWarnings("deprecation") final Query query = getQueryManager().createQuery(queryString, Query.SQL);
