@@ -32,7 +32,11 @@ import org.slf4j.LoggerFactory;
  */
 public class ReflectiveJaxrsConfig extends DefaultJaxrsConfig {
 
-    private static final Logger log = LoggerFactory.getLogger(ReflectiveJaxrsConfig.class);
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private static final Logger log = LoggerFactory.getLogger(ReflectiveJaxrsConfig.class);
 
     @Override
     public void init(final ServletConfig servletConfig) {
