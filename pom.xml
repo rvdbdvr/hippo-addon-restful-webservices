@@ -20,12 +20,12 @@
 
   <name>Hippo RESTFul Web Services Addon</name>
   <description>Hippo RESTful Web Services Addon project</description>
-  <groupId>org.onehippo.forge.webservices</groupId>
+  <groupId>com.hinttech.hippo</groupId>
   <artifactId>hippo-addon-restful-webservices</artifactId>
-  <version>0.3.2-SNAPSHOT</version>
+  <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <url>https://github.com/jreijn/hippo-addon-restful-webservices</url>
+  <url>https://github.com/rvdbdvr/hippo-addon-restful-webservices</url>
 
   <inceptionYear>2014</inceptionYear>
   <licenses>
@@ -45,7 +45,7 @@
       <timezone>+1</timezone>
     </developer>
     <developer>
-      <id>rvdborn</id>
+      <id>rvdbdvr</id>
       <email>reinier.van.den.born@hinttech.com</email>
       <organization>HintTech</organization>
       <organizationUrl>http://www.hinttech.com</organizationUrl>
@@ -59,19 +59,15 @@
 
   <issueManagement>
     <system>github</system>
-    <url>https://github.com/jreijn/hippo-addon-restful-webservices/issues</url>
+    <url>https://github.com/rvdbdvr/hippo-addon-restful-webservices/issues</url>
   </issueManagement>
 
   <scm>
-    <url>git@github.com:jreijn/hippo-addon-restful-webservices.git</url>
-    <connection>scm:git:git@github.com:jreijn/hippo-addon-restful-webservices.git</connection>
-    <developerConnection>scm:git:git@github.com:jreijn/hippo-addon-restful-webservices.git</developerConnection>
+    <url>git@github.com:rvdbdvr/hippo-addon-restful-webservices.git</url>
+    <connection>scm:git:git@github.com:rvdbdvr/hippo-addon-restful-webservices.git</connection>
+    <developerConnection>scm:git:git@github.com:rvdbdvr/hippo-addon-restful-webservices.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
-  <ciManagement>
-    <system>travis-ci</system>
-    <url>https://travis-ci.org/jreijn/hippo-addon-restful-webservices</url>
-  </ciManagement>
 
   <distributionManagement>
     <snapshotRepository>
